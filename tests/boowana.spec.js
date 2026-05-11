@@ -84,7 +84,7 @@ test('Daftar Akun', async ({ page }) => {
 
 
     // ========================
-    // SAVE DATA TO TXT
+    // SAVE DATA TO Text
     // ========================
     const data = `
 Time: ${new Date().toISOString()}
