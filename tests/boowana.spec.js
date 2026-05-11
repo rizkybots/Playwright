@@ -9,7 +9,7 @@ test('Daftar Akun', async ({ page }) => {
     });
 
     // ========================
-    // CLICK SIGN UP
+    // CLICK Daftar
     // ========================
     const signupBtn = page.locator('a[href="/auth/signup"]');
 
