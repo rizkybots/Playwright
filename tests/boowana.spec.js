@@ -1,6 +1,5 @@
 import { test } from '@playwright/test';
 import fs from 'fs';
-
 test('Daftar Akun', async ({ page }) => {
 
     await page.goto('https://staging-buwana.indonesiancloud.com/', {
@@ -9,7 +8,7 @@ test('Daftar Akun', async ({ page }) => {
     });
 
     // ========================
-    // CLICK Daftar
+    // CLICK SIGN UP
     // ========================
     const signupBtn = page.locator('a[href="/auth/signup"]');
 
@@ -84,7 +83,7 @@ test('Daftar Akun', async ({ page }) => {
 
 
     // ========================
-    // SAVE DATA TO Text
+    // SAVE DATA TO TXT
     // ========================
     const data = `
 Time: ${new Date().toISOString()}

@@ -1,63 +1,112 @@
 // playwright.config.js
+// Optimized untuk RAM 8GB
 
-const { defineConfig, devices } = require('@playwright/test');
+const { defineConfig } = require('@playwright/test');
 
 module.exports = defineConfig({
-
-  // Folder test
+  
   testDir: './tests',
 
-  // Jalankan test secara paralel
-  fullyParallel: true,
+  // Jangan terlalu banyak parallel di RAM 8GB
+  fullyParallel: false,
 
-  // Gagal jika ada test.only di CI
-  forbidOnly: !!process.env.CI,
+  // Worker sedikit agar ringan
+  workers: 1,
 
-  // Retry jika gagal di CI
-  retries: process.env.CI ? 2 : 0,
+  // Retry
+  retries: 0,
 
-  // Worker
-  workers: process.env.CI ? 1 : undefined,
+  // Timeout
+  timeout: 30 * 1000,
 
-  // Reporter
-  reporter: 'html',
+  expect: {
+    timeout: 5000,
+  },
 
   use: {
 
     // Base URL
-    // baseURL: 'http://127.0.0.1:3000',
+    baseURL: 'https://staging-halalmaxcert.indonesiancloud.com/',
 
-    // Screenshot saat gagal
-    screenshot: 'only-on-failure',
+    // Gunakan Chromium
+    browserName: 'chromium',
 
-    // Trace saat retry
-    trace: 'on-first-retry',
+    // Browser tanpa GUI = jauh lebih ringan
+    headless: true,
 
-  },
+    // Ignore SSL staging
+    ignoreHTTPSErrors: true,
 
-  projects: [
-
-    {
-      name: 'chromium',
-      use: {
-        ...devices['Desktop Chrome'],
-      },
+    // Viewport kecil agar ringan
+    viewport: {
+      width: 1280,
+      height: 720,
     },
 
-    // {
-    //   name: 'firefox',
-    //   use: {
-    //     ...devices['Desktop Firefox'],
-    //   },
-    // },
+    // Timeout navigation
+    navigationTimeout: 30000,
 
-    // {
-    //   name: 'webkit',
-    //   use: {
-    //     ...devices['Desktop Safari'],
-    //   },
-    // },
+    // Timeout action
+    actionTimeout: 10000,
 
+    // Screenshot hanya saat gagal
+    screenshot: 'only-on-failure',
+
+    // Matikan video
+    video: 'off',
+
+    // Matikan trace agar ringan
+    trace: 'off',
+
+    // Browser lebih ringan
+    launchOptions: {
+
+      slowMo: 0,
+
+      args: [
+
+        // Disable GPU
+        '--disable-gpu',
+
+        // Disable extension
+        '--disable-extensions',
+
+        // Disable dev shm
+        '--disable-dev-shm-usage',
+
+        // Disable background process
+        '--disable-background-networking',
+
+        '--disable-background-timer-throttling',
+
+        '--disable-renderer-backgrounding',
+
+        '--disable-backgrounding-occluded-windows',
+
+        // Disable notification
+        '--disable-notifications',
+
+        // Disable translate
+        '--disable-translate',
+
+        // Disable sync
+        '--disable-sync',
+
+        // Disable popup blocking
+        '--disable-popup-blocking',
+
+        // No first run
+        '--no-first-run',
+
+        '--no-default-browser-check',
+
+      ],
+    },
+  },
+
+  // Reporter ringan
+  reporter: [
+    ['list'],
   ],
 
 });
