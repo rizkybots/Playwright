@@ -4,7 +4,7 @@
 const { defineConfig } = require('@playwright/test');
 
 module.exports = defineConfig({
-  
+
   testDir: './tests',
 
   // Jangan terlalu banyak parallel di RAM 8GB
@@ -16,7 +16,7 @@ module.exports = defineConfig({
   // Retry
   retries: 0,
 
-  // Timeout
+  // Timeout global
   timeout: 30 * 1000,
 
   expect: {
@@ -28,20 +28,17 @@ module.exports = defineConfig({
     // Base URL
     baseURL: 'https://staging-halalmaxcert.indonesiancloud.com/',
 
-    // Gunakan Chromium
+    // Browser
     browserName: 'chromium',
 
-    // Browser tanpa GUI = jauh lebih ringan
-    headless: true,
+    // Browser terlihat
+    headless: false,
 
     // Ignore SSL staging
     ignoreHTTPSErrors: true,
 
-    // Viewport kecil agar ringan
-    viewport: {
-      width: 1280,
-      height: 720,
-    },
+    // Fullscreen browser
+    viewport: null,
 
     // Timeout navigation
     navigationTimeout: 30000,
@@ -52,18 +49,21 @@ module.exports = defineConfig({
     // Screenshot hanya saat gagal
     screenshot: 'only-on-failure',
 
-    // Matikan video
+    // Video OFF agar ringan
     video: 'off',
 
-    // Matikan trace agar ringan
+    // Trace OFF agar ringan
     trace: 'off',
 
-    // Browser lebih ringan
+    // Launch browser
     launchOptions: {
 
       slowMo: 0,
 
       args: [
+
+        // Browser maximize
+        '--start-maximized',
 
         // Disable GPU
         '--disable-gpu',
@@ -106,7 +106,8 @@ module.exports = defineConfig({
 
   // Reporter ringan
   reporter: [
-    ['list'],
+    ["html"],
+    ["list"]
   ],
 
 });

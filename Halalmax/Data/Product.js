@@ -1,0 +1,32 @@
+module.exports = [
+  "Bika Ambon",
+    "Jus Alpukat",
+    "Jus Sirsak",
+    "Jus Mangga",
+    "Bulgogi Sapi Sambal Matah",
+    "Jus Jambu",
+    "Jus Pepaya",
+    "Martabak Keju",
+    "Es Kuku Bima",
+    "Nasi Goreng Kecombrang",
+    "Jus Apel",
+    "Es Pisang Ijo",
+    "Es Podeng",
+    "Ikan Cakalang",
+    "Nasi Goreng Seafood",
+    "Mie Goreng Seafood",
+    "Es Teler",
+    "Ayam Woku",
+    "Dendeng Batokok",
+    "Es Ce Hun Tiau",
+    "Empal Gentong",
+    "Kwe Kia Theng",
+    "Sotong Pangkong",
+    "Nasi Goreng Seafood", // Duplikat 2
+    "Ayam Bakar Bumbu Kacang",
+    "Bakwan Tahu",
+    "Bulgogi Sapi",
+    "Ketoprak",
+    "Ayam Bakar Bumbu Kacang", // Duplikat 2
+    "Ayam Bakar Bumbu Kacang"  // Duplikat 3
+];
