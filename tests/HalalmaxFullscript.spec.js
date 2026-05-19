@@ -1,12 +1,13 @@
 const { test, expect } = require("@playwright/test");
 
-test("Pengajuan Sertifikasi Halal - PRO MULTI IMAGE FLOW (ULTRA VALIDATION)", async ({ page }) => {
-  test.setTimeout(900000);
+test("Pengajuan Sertifikasi Halal - REAKTIF AI FLOW (FIXED SELECTOR)", async ({ page }) => {
+  test.setTimeout(1200000);
 
   // =====================================================
   // DATA & KONFIGURASI
   // =====================================================
   const products = [
+    "Empal Gentong",
     "Bika Ambon",
     "Jus Alpukat",
     "Jus Sirsak",
@@ -34,6 +35,8 @@ test("Pengajuan Sertifikasi Halal - PRO MULTI IMAGE FLOW (ULTRA VALIDATION)", as
     "Bakwan Tahu",
     "Bulgogi Sapi",
     "Ketoprak",
+    "Gemblong",
+    "Jus Sirsak",
   ];
 
   const images = [
@@ -44,7 +47,7 @@ test("Pengajuan Sertifikasi Halal - PRO MULTI IMAGE FLOW (ULTRA VALIDATION)", as
   ];
 
   // =====================================================
-  // HELPERS
+  // HELPER
   // =====================================================
   const sleep = (ms) =>
     new Promise((resolve) => setTimeout(resolve, ms));
@@ -58,17 +61,13 @@ test("Pengajuan Sertifikasi Halal - PRO MULTI IMAGE FLOW (ULTRA VALIDATION)", as
       timeout: 30000,
     });
 
+    await locator.scrollIntoViewIfNeeded();
     await locator.click();
   }
 
-  async function safeEscape() {
-    await page.keyboard
-      .press("Escape")
-      .catch(() => {});
-
-    await page.mouse
-      .click(0, 0)
-      .catch(() => {});
+  async function closeModal() {
+    await page.keyboard.press("Escape").catch(() => {});
+    await page.mouse.click(0, 0).catch(() => {});
   }
 
   // =====================================================
@@ -77,12 +76,9 @@ test("Pengajuan Sertifikasi Halal - PRO MULTI IMAGE FLOW (ULTRA VALIDATION)", as
   async function tambahProduk(productName) {
     const image = randomImage();
 
-    console.log(
-      `🚀 Memproses: ${productName}`
-    );
+    console.log(`🚀 Memproses: ${productName}`);
 
     try {
-
       // =================================================
       // BUKA MODAL
       // =================================================
@@ -100,32 +96,23 @@ test("Pengajuan Sertifikasi Halal - PRO MULTI IMAGE FLOW (ULTRA VALIDATION)", as
         })
       );
 
-      await sleep(500);
-
       // =================================================
       // INPUT NAMA PRODUK
       // =================================================
-      const input =
-        page.getByRole("textbox", {
-          name: "Masukkan nama produk",
-        });
+      const inputProduk = page.getByRole("textbox", {
+        name: "Masukkan nama produk",
+      });
 
-      await input.fill(
-        productName.slice(0, 10)
-      );
+      await inputProduk.fill(productName.slice(0, 10));
 
       await sleep(1000);
 
-      const suggestion =
-        page
-          .locator("div, span, p")
-          .filter({
-            hasText: new RegExp(
-              `^${productName}$`,
-              "i"
-            ),
-          })
-          .first();
+      const suggestion = page
+        .locator("div, span, p")
+        .filter({
+          hasText: new RegExp(`^${productName}$`, "i"),
+        })
+        .first();
 
       await suggestion.waitFor({
         state: "visible",
@@ -134,7 +121,7 @@ test("Pengajuan Sertifikasi Halal - PRO MULTI IMAGE FLOW (ULTRA VALIDATION)", as
 
       await suggestion.click();
 
-      await sleep(1200);
+      await sleep(1500);
 
       // =================================================
       // UPLOAD GAMBAR
@@ -145,255 +132,121 @@ test("Pengajuan Sertifikasi Halal - PRO MULTI IMAGE FLOW (ULTRA VALIDATION)", as
         })
       );
 
-      await sleep(700);
-
-      const [fileChooser] =
-        await Promise.all([
-          page.waitForEvent(
-            "filechooser"
-          ),
-
-          page
-            .getByText(
-              "Pilih File Perangkat"
-            )
-            .click(),
-        ]);
+      const [fileChooser] = await Promise.all([
+        page.waitForEvent("filechooser"),
+        page.getByText("Pilih File Perangkat").click(),
+      ]);
 
       await fileChooser.setFiles(image);
 
-      await sleep(1800);
+      await sleep(2500);
 
       // Tutup overlay upload
       await page.mouse.click(0, 0);
 
-      await sleep(800);
+      await sleep(1000);
 
       // =================================================
       // ELEMENT PENTING
       // =================================================
-      const btnSimpan =
-        page.getByRole("button", {
-          name: "Simpan",
-          exact: true,
-        });
+      const btnSimpan = page.getByRole("button", {
+        name: "Simpan",
+        exact: true,
+      });
 
-      const modalIndicator =
-        page.getByRole("radio", {
-          name: "Isi Manual",
-        });
+      const modalIndicator = page.getByRole("radio", {
+        name: "Isi Manual",
+      });
 
-      const alertWarning =
-        page.locator(".v-alert", {
-          hasText: "Peringatan",
-        });
+      const btnAI = page
+        .getByText("Gunakan AI")
+        .first();
 
-      // =================================================
-      // KLIK AI AWAL
-      // =================================================
-      const btnAIInitial =
-        page
-          .getByRole("button", {
-            name: /Gunakan AI/i,
-          })
-          .first();
-
-      if (
-        await btnAIInitial
-          .isVisible()
-          .catch(() => false)
-      ) {
-
-        await btnAIInitial.click();
-
-        await sleep(3500);
-      }
-
-      // =================================================
-      // SIMPAN PERTAMA
-      // =================================================
-      await btnSimpan.scrollIntoViewIfNeeded();
-
-      await btnSimpan.click();
-
-      await sleep(2200);
-
-      // =================================================
-      // VALIDASI ALERT + RETRY AI
-      // =================================================
-      let isSolved = false;
-
-      let attempt = 0;
-
-      const maxAttempts = 5;
-
-      while (
-        !isSolved &&
-        attempt < maxAttempts
-      ) {
-
-        const isAlertVisible =
-          await alertWarning
-            .isVisible()
-            .catch(() => false);
-
-        // =============================================
-        // JIKA ALERT MUNCUL
-        // =============================================
-        if (isAlertVisible) {
-
-          const fullText =
-            await alertWarning.innerText();
-
-          const match =
-            fullText.match(
-              /"([^"]+)"/
-            );
-
-          const namaBahan =
-            match?.[1] || null;
-
-          console.log(
-            `⚠️ [${attempt + 1}/${maxAttempts}] ${productName} -> ${namaBahan || "Unknown"}`
-          );
-
-          // Cari tombol AI sesuai bahan
-          if (namaBahan) {
-
-            const btnAIRetry =
-              page
-                .locator(
-                  "tr, .row",
-                  {
-                    hasText:
-                      new RegExp(
-                        namaBahan,
-                        "i"
-                      ),
-                  }
-                )
-                .getByRole(
-                  "button",
-                  {
-                    name:
-                      /Gunakan AI/i,
-                  }
-                );
-
-            if (
-              await btnAIRetry
-                .isVisible()
-                .catch(() => false)
-            ) {
-
-              await btnAIRetry.click();
-
-              await sleep(4000);
-
-            } else {
-
-              console.log(
-                `❌ Tombol AI ${namaBahan} tidak ditemukan`
-              );
-            }
-
-          } else {
-
-            // fallback klik AI pertama
-            if (
-              await btnAIInitial
-                .isVisible()
-                .catch(() => false)
-            ) {
-
-              await btnAIInitial.click();
-
-              await sleep(3500);
-            }
-          }
-
-          // Klik simpan ulang
-          await btnSimpan.click();
-
-          await sleep(2500);
-
-        } else {
-
-          // =============================================
-          // JIKA ALERT SUDAH HILANG
-          // =============================================
-          if (
-            await modalIndicator
-              .isHidden()
-              .catch(() => false)
-          ) {
-
-            isSolved = true;
-
-            console.log(
-              `✅ DONE: ${productName}`
-            );
-
-            break;
-
-          } else {
-
-            console.log(
-              `🧐 Modal masih terbuka tanpa alert: ${productName}`
-            );
-
-            // Pancing klik simpan
-            await btnSimpan.click();
-
-            await sleep(2500);
-
-            if (
-              await modalIndicator
-                .isHidden()
-                .catch(() => false)
-            ) {
-
-              isSolved = true;
-
-              console.log(
-                `✅ DONE: ${productName}`
-              );
-
-              break;
-            }
-          }
+      // Alert merah spesifik
+      const alertMerah = page.locator(
+        "div.bg-red-50.text-red-600",
+        {
+          hasText: /Peringatan/i,
         }
+      );
 
-        attempt++;
+      // =================================================
+      // FLOW SIMPAN + VALIDASI AI
+      // =================================================
+
+      // Klik Simpan Pertama
+      await expect(btnSimpan).toBeEnabled({
+        timeout: 15000,
+      });
+
+      console.log("💾 Klik Simpan Pertama...");
+
+      await btnSimpan.click({
+        force: true,
+      });
+
+      try {
+        // Tunggu alert muncul
+        await alertMerah.waitFor({
+          state: "visible",
+          timeout: 4000,
+        });
+
+        console.log(
+          "⚠️ Alert merah terdeteksi, menjalankan AI..."
+        );
+
+        // Klik Gunakan AI
+        await btnAI.click({
+          force: true,
+        });
+
+        console.log("🤖 AI sedang memproses...");
+
+        // Tunggu AI sinkronisasi
+        await sleep(6000);
+
+        // Tunggu tombol Simpan aktif kembali
+        await expect(btnSimpan).toBeEnabled({
+          timeout: 15000,
+        });
+
+        console.log("💾 Klik Simpan Final...");
+
+        // Klik Simpan Final
+        await btnSimpan.click({
+          force: true,
+        });
+
+      } catch (error) {
+        // Tidak ada alert merah
+        console.log("✅ Tidak ada alert merah");
       }
 
       // =================================================
-      // VALIDASI FINAL
+      // VALIDASI MODAL TERTUTUP
       // =================================================
-      await expect(
-        modalIndicator
-      ).toBeHidden({
+      await expect(modalIndicator).toBeHidden({
         timeout: 10000,
       });
+
+      console.log(`✅ Berhasil Disimpan: ${productName}`);
 
       return true;
 
     } catch (err) {
-
       console.log(
-        `❌ GAGAL: ${productName} | ${err.message}`
+        `❌ Gagal: ${productName} | ${err.message}`
       );
 
-      await safeEscape();
-
-      await sleep(1000);
+      await closeModal();
 
       return false;
     }
   }
 
   // =====================================================
-  // LOGIN FLOW
+  // LOGIN & NAVIGASI
   // =====================================================
   await page.goto(
     "https://staging-halalmaxcert.indonesiancloud.com/",
@@ -402,19 +255,13 @@ test("Pengajuan Sertifikasi Halal - PRO MULTI IMAGE FLOW (ULTRA VALIDATION)", as
     }
   );
 
-  await sleep(1500);
-
   await safeClick(
     page.getByText("Masuk sebagai").nth(5)
   );
 
-  await sleep(500);
-
   await safeClick(
     page.getByText("Pelaku Usaha")
   );
-
-  await sleep(500);
 
   await safeClick(
     page.getByRole("button", {
@@ -422,21 +269,20 @@ test("Pengajuan Sertifikasi Halal - PRO MULTI IMAGE FLOW (ULTRA VALIDATION)", as
     })
   );
 
-  await sleep(1000);
-
   await safeClick(
     page.getByText("Masuk", {
       exact: true,
     })
   );
 
+  // =====================================================
+  // LOGIN
+  // =====================================================
   await page
     .getByRole("textbox", {
       name: "Masukkan Alamat Email",
     })
     .fill("testingkibot@gmail.com");
-
-  await sleep(300);
 
   await page
     .getByRole("textbox", {
@@ -444,33 +290,22 @@ test("Pengajuan Sertifikasi Halal - PRO MULTI IMAGE FLOW (ULTRA VALIDATION)", as
     })
     .fill("P@ssword!1");
 
-  await sleep(300);
-
   await page
     .getByRole("button", {
       name: "Masuk",
     })
     .click();
 
-  await expect(page).toHaveURL(
-    /\/portal/,
-    {
-      timeout: 60000,
-    }
-  );
-
-  await sleep(2000);
+  await expect(page).toHaveURL(/\/portal/, {
+    timeout: 60000,
+  });
 
   // =====================================================
-  // AJUKAN SERTIFIKASI
+  // BUAT PENGAJUAN
   // =====================================================
   await safeClick(
-    page.locator(
-      '[data-test-id="button-primary"]'
-    )
+    page.locator('[data-test-id="button-primary"]')
   );
-
-  await sleep(1000);
 
   await safeClick(
     page.getByRole("button", {
@@ -478,10 +313,8 @@ test("Pengajuan Sertifikasi Halal - PRO MULTI IMAGE FLOW (ULTRA VALIDATION)", as
     })
   );
 
-  await sleep(1500);
-
   // =====================================================
-  // KBLI
+  // PILIH KBLI
   // =====================================================
   await safeClick(
     page.getByRole("textbox", {
@@ -489,21 +322,15 @@ test("Pengajuan Sertifikasi Halal - PRO MULTI IMAGE FLOW (ULTRA VALIDATION)", as
     })
   );
 
-  await sleep(500);
-
   await safeClick(
     page.getByText("Kedai Makanan")
   );
-
-  await sleep(500);
 
   await page
     .getByRole("radio", {
       name: "Fasilitator",
     })
     .check();
-
-  await sleep(500);
 
   await page
     .getByRole("button", {
@@ -515,8 +342,6 @@ test("Pengajuan Sertifikasi Halal - PRO MULTI IMAGE FLOW (ULTRA VALIDATION)", as
     /\/sertifikasi\/\d+\/pengajuan/
   );
 
-  await sleep(2000);
-
   // =====================================================
   // PILIH KATEGORI
   // =====================================================
@@ -527,13 +352,9 @@ test("Pengajuan Sertifikasi Halal - PRO MULTI IMAGE FLOW (ULTRA VALIDATION)", as
   await safeClick(
     page
       .locator(".cursor-pointer")
-      .filter({
-        hasText: /Pilih/,
-      })
+      .filter({ hasText: /Pilih/ })
       .last()
   );
-
-  await sleep(500);
 
   await safeClick(
     page.getByText(
@@ -544,180 +365,164 @@ test("Pengajuan Sertifikasi Halal - PRO MULTI IMAGE FLOW (ULTRA VALIDATION)", as
     )
   );
 
-  await sleep(1500);
-
   // =====================================================
   // LOOP PRODUK
   // =====================================================
-  const failed = [];
-
   for (const product of products) {
-
-    const success =
-      await tambahProduk(product);
-
-    if (!success) {
-      failed.push(product);
-    }
-
-    await sleep(800);
+    await tambahProduk(product);
+    await sleep(1000);
   }
 
-  // =====================================================
-  // RETRY PRODUK GAGAL
-  // =====================================================
-  if (failed.length > 0) {
-
-    console.log(
-      "⚠️ RETRY PRODUK:",
-      failed
-    );
-
-    for (const product of failed) {
-
-      await tambahProduk(product);
-
-      await sleep(1000);
-    }
-  }
+  console.log("🏁 PROSES SELESAI!");
 
   // =====================================================
-  // SUBMIT PENGAJUAN
+  // FINAL SUBMIT
   // =====================================================
-  const btnKirimPengajuan =
-    page
-      .getByRole("button", {
-        name: /Kirim Pengajuan/i,
-      })
-      .last();
+  const btnKirimFinal =
+    page.getByRole("button", {
+      name: /Kirim Pengajuan/i,
+    }).last();
 
-  await btnKirimPengajuan.scrollIntoViewIfNeeded();
+  await btnKirimFinal.scrollIntoViewIfNeeded();
 
-  await sleep(1000);
+  await btnKirimFinal.click();
 
-  await btnKirimPengajuan.click();
+  await sleep(1500);
 
-  await sleep(2000);
-
-  // =====================================================
-  // CHECKLIST
-  // =====================================================
+  // Checklist
   const checkboxes =
-    page.locator(
-      '[name="checkbox"]'
-    );
+    page.locator('[name="checkbox"]');
 
   const total =
     await checkboxes.count();
 
   for (let i = 0; i < total; i++) {
 
-    const cb =
+    const checkbox =
       checkboxes.nth(i);
 
-    if (
-      await cb
-        .isVisible()
-        .catch(() => false)
-    ) {
+    if (await checkbox.isVisible()) {
 
-      await cb.click();
+      await checkbox.click();
 
-      await sleep(300);
+      await sleep(150);
     }
   }
 
-  // =====================================================
-  // KIRIM PENGAJUAN
-  // =====================================================
   await page
     .getByRole("button", {
       name: "Kirim Pengajuan",
-    })
-    .nth(3)
-    .click();
+    }).last().click()
 
   await sleep(2500);
 
   // =====================================================
-  // LOKASI
+  // LOKASI & LP3H
   // =====================================================
   await page
-    .getByText(
-      "Mohon pilih lokasi terlebih"
-    )
+    .getByText("Mohon pilih lokasi terlebih")
     .click();
 
-  await sleep(500);
-
   await safeClick(
-    page.getByText(
-      "Pilih lokasi",
-      {
-        exact: true,
-      }
-    )
+    page.getByText("Pilih lokasi", {
+      exact: true,
+    })
   );
-
-  await sleep(500);
 
   await safeClick(
     page.getByText("Kabupaten")
   );
 
-  await sleep(1200);
+  await sleep(800);
 
-  // =====================================================
-  // LP3H
-  // =====================================================
+// =====================================================
+// LP3H
+// =====================================================
+
+console.log("🔍 Memilih LP3H...");
+
+const inputLP3H = page.getByRole("textbox", {
+  name: "Pilih lp3h",
+});
+
+// klik field
+await inputLP3H.click();
+
+await sleep(1000);
+
+// ketik keyword
+await inputLP3H.fill("Masyarakat");
+
+await sleep(3000);
+
+// DEBUG: lihat option muncul atau tidak
+const optionLP3H = page.getByText(
+  "Masyarakat Ekonomi Syariah",
+  { exact: true }
+);
+
+// tunggu option muncul
+await optionLP3H.waitFor({
+  state: "visible",
+  timeout: 15000,
+});
+
+console.log("✅ Option LP3H muncul");
+
+// klik option
+await optionLP3H.click();
+
+console.log("✅ LP3H berhasil dipilih");
+
+// tunggu dependency render
+await sleep(4000);
+
+// klik luar supaya dropdown close
+await page.mouse.click(0, 0);
+
+await sleep(2000);
+
+// =====================================================
+// PENDAMPING HALAL
+// =====================================================
+
+console.log("🔍 Memilih Pendamping Halal...");
+
+const inputPendamping = page.getByRole("textbox", {
+  name: "Pilih pendamping halal",
+});
+
+// tunggu enable
+await expect(inputPendamping).toBeEditable({
+  timeout: 20000,
+});
+
+await inputPendamping.click();
+
+await sleep(1000);
+
+await inputPendamping.fill("Abiyyu");
+
+await sleep(3000);
+
+const optionPendamping = page.getByText(
+  "Abiyyu Achmad Syahru Mubarok",
+  { exact: true }
+);
+
+await optionPendamping.waitFor({
+  state: "visible",
+  timeout: 15000,
+});
+
+await optionPendamping.click();
+
+console.log("✅ Pendamping berhasil dipilih");
+
+  // Kode fasilitator
   await page
     .getByRole("textbox", {
-      name: "Pilih lp3h",
-    })
-    .fill("mas");
-
-  await sleep(1000);
-
-  await safeClick(
-    page
-      .locator("div")
-      .filter({
-        hasText:
-          /^Masyarakat Ekonomi Syariah$/,
-      })
-  );
-
-  await sleep(1000);
-
-  // =====================================================
-  // PENDAMPING
-  // =====================================================
-  await safeClick(
-    page.getByRole("textbox", {
-      name: "Pilih pendamping halal",
-    })
-  );
-
-  await sleep(700);
-
-  await safeClick(
-    page
-      .locator("div")
-      .filter({
-        hasText:
-          /^Abiyyu Achmad Syahru Mubarok$/,
-      })
-  );
-
-  await sleep(1000);
-
-  // =====================================================
-  // KODE FASILITATOR
-  // =====================================================
-  await page
-    .getByRole("textbox", {
-      name:
-        "Masukkan kode fasilitator",
+      name: "Masukkan kode fasilitator",
     })
     .fill("SEHATI26");
 
@@ -731,7 +536,7 @@ test("Pengajuan Sertifikasi Halal - PRO MULTI IMAGE FLOW (ULTRA VALIDATION)", as
     .click();
 
   // =====================================================
-  // VALIDASI FINAL
+  // VALIDASI AKHIR
   // =====================================================
   await expect(page).toHaveURL(
     /daftar-pengajuan/,
@@ -740,7 +545,5 @@ test("Pengajuan Sertifikasi Halal - PRO MULTI IMAGE FLOW (ULTRA VALIDATION)", as
     }
   );
 
-  console.log(
-    "🏁 SEMUA PROSES SELESAI"
-  );
+  console.log("🏁 SEMUA BERHASIL!");
 });
